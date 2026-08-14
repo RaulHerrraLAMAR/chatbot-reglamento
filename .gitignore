@@ -19,3 +19,6 @@ credentials.json
 # Configuración local del entorno de desarrollo
 .claude/
 
+# PDF fuente del reglamento (se coloca manualmente en local, no se versiona)
+reglamento.pdf
+
