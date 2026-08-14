@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Chatbot Reglamento Lamar</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; background: #f4f6f8; }
+  h2 { color: #1F3864; }
+  #chat { background: white; border-radius: 8px; padding: 16px; height: 400px; overflow-y: auto; border: 1px solid #ccc; }
+  .msg { padding: 8px 12px; margin: 6px 0; border-radius: 8px; max-width: 80%; }
+  .usuario { background: #1F3864; color: white; margin-left: auto; text-align: right; }
+  .bot { background: #e9ecef; color: #222; white-space: pre-wrap; }
+  .fuente { font-size: 11px; color: #666; margin-top: 4px; }
+  #entrada { display: flex; margin-top: 10px; }
+  #pregunta { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #ccc; }
+  button { padding: 10px 16px; margin-left: 8px; background: #1F3864; color: white; border: none; border-radius: 6px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<h2> Chatbot — Reglamento General de Alumnos</h2>
+<div id="chat"></div>
+<div id="entrada">
+  <input id="pregunta" placeholder="Ej. ¿Qué dice el artículo 4?" onkeydown="if(event.key==='Enter') enviarPregunta()">
+  <button onclick="enviarPregunta()">Enviar</button>
+</div>
+
+<script>
+const API_URL = "http://localhost:8000/api/chat";
+
+async function enviarPregunta() {
+  const input = document.getElementById("pregunta");
+  const mensaje = input.value.trim();
+  if (!mensaje) return;
+
+  agregarMensaje("usuario", mensaje);
+  input.value = "";
+  const idCargando = agregarMensaje("bot", "Escribiendo...");
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mensaje })
+    });
+    const data = await res.json();
+    document.getElementById(idCargando).remove();
+
+    let fuentesTexto = "";
+    if (data.fuentes && data.fuentes.length) {
+      fuentesTexto = "\n\nFuentes: " + data.fuentes.map(f => `Art. ${f.articulo} (sim: ${f.similitud})`).join(", ");
+    }
+    agregarMensaje("bot", data.respuesta + fuentesTexto);
+  } catch (err) {
+    document.getElementById(idCargando).remove();
+    agregarMensaje("bot", "⚠️ No pude conectar con el backend. ¿Está corriendo uvicorn?");
+  }
+}
+
+function agregarMensaje(rol, texto) {
+  const chat = document.getElementById("chat");
+  const div = document.createElement("div");
+  const id = "msg-" + Date.now() + Math.random();
+  div.id = id;
+  div.className = "msg " + rol;
+  div.textContent = texto;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return id;
+}
+</script>
+</body>
+</html>

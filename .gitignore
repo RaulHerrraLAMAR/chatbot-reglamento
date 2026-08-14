@@ -1,0 +1,21 @@
+# Entorno virtual de Python
+venv/
+env/
+.venv/
+
+# Bytecode y cachés de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Archivos de configuración con credenciales (si se llega a crear alguno)
+.env
+.env.*
+config.py
+secrets.py
+credentials.json
+*.pem
+
+# Configuración local del entorno de desarrollo
+.claude/
+
